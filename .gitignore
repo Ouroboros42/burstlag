@@ -1,0 +1,5 @@
+*.c
+build/
+pyvenv/
+*.egg-info
+__pycache__/
