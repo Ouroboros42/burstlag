@@ -1,11 +1,26 @@
-from setuptools import setup
+from setuptools import setup, Extension
 from Cython.Build import cythonize
+import numpy
 
-def anyfile(file_ext: str):
-    return f"src/**/*.{file_ext}"
+src_root = "src/"
+py_root = src_root + "burstlag/"
+cpp_root = src_root + "cpp/"
 
-source_files = [ anyfile("py"), anyfile("pyx") ]
+ext = Extension("*", [
+        py_root + "__init__.pyx",
+        cpp_root + "fast_sum/lazy.cpp",
+        cpp_root + "fast_sum/converging.cpp"
+    ],
+    language="c++",
+    extra_compile_args = [ "/std:c++17" ],
+)
 
-cython_module = cythonize(source_files, build_dir="build", language_level = "3")
+cython_module = cythonize(ext, build_dir="build", language_level = "3")
 
-setup(name='burst-lag', ext_modules=cython_module, include_dirs=["cpplib", "src/cpp"])
+setup(name='burst-lag',
+    ext_modules=cython_module,
+    include_dirs=[
+        "cpplib", "src/cpp",
+        numpy.get_include()
+    ]
+)
