@@ -5,6 +5,8 @@
 #include "caching/factorials.hpp"
 #include "inputs/relation.hpp"
 
+typedef std::vector<size_t> hist_vec;
+
 /* Terms in sum of to find likelihood of two observed neutrino counts (count_1, count_2) in the same time window,
 for the specified detectors. */
 class BinSumTerms : public Lazy2DArray {
@@ -28,6 +30,6 @@ Neglects overall scaling factors from numbers of events */
 scalar bin_log_likelihood_unscaled(FactorialCache& fcache, DetectorRelation& detectors, size_t count_1, size_t count_2, scalar rel_precision);
 
 /* Returns the log_likelihood (up to a constant factor which depends only on detectors and number of bins) of observing the two signals from the given detectors */
-scalar log_likelihood(FactorialCache& fcache, DetectorRelation& detectors, vec signal_1, vec signal_2, scalar rel_precision);
+scalar log_likelihood(FactorialCache& fcache, DetectorRelation& detectors, hist_vec signal_1, hist_vec signal_2, scalar rel_precision);
 
 #endif

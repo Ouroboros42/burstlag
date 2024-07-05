@@ -2,6 +2,8 @@
 
 from libcpp.vector cimport vector
 
+import numpy as np
+
 from .interface cimport DetectorRelation as CPPDetectorRelation, FactorialCache as CPPFactorialCache, log_likelihood as cpp_log_likelihood
 
 cdef class DetectorRelation:
@@ -13,15 +15,18 @@ cdef class DetectorRelation:
 cdef class FactorialCache:
     c_cache: CPPFactorialCache
 
-cdef vector[double] arr_to_vec(a: double[:]):
-    cdef size_t length = a.shape[0]
-    cdef vector[double] v = vector[double](length)
+cdef vector[size_t] any_arr_to_countvec(arr) except *:
+    cdef size_t length = arr.shape[0]
+    cdef vector[size_t] v = vector[size_t](length)
 
     cdef size_t i
     for i in range(length):
-        v[i] = a[i]
-
+        elem = arr[i]
+        if elem < 0:
+            raise ValueError("Negative Neutrino Count in bin",i,"is illegal")
+        else:
+            v[i] = <size_t> elem
     return v
 
-def log_likelihood(cache: FactorialCache, detectors: DetectorRelation, signal_1: double[:], signal_2: double[:], rel_precision: double) -> double:
-    return cpp_log_likelihood(cache.c_cache, detectors.c_rel, arr_to_vec(signal_1), arr_to_vec(signal_2), rel_precision)
+def log_likelihood(cache: FactorialCache, detectors: DetectorRelation, signal_1: np.ndarray, signal_2: np.ndarray, rel_precision: double) -> double:
+    return cpp_log_likelihood(cache.c_cache, detectors.c_rel, any_arr_to_countvec(signal_1), any_arr_to_countvec(signal_2), rel_precision)

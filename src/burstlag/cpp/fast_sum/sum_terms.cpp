@@ -4,7 +4,7 @@
 #include <numeric>
 #include <stdexcept>
 
-scalar sum(vec values) {
+size_t sum(hist_vec values) {
     return std::reduce(values.begin(), values.end());
 }
 
@@ -39,7 +39,7 @@ scalar bin_log_likelihood_unscaled(FactorialCache& fcache, DetectorRelation& det
     );
 }
 
-scalar log_likelihood(FactorialCache& fcache, DetectorRelation& detectors, vec signal_1, vec signal_2, scalar rel_precision) {
+scalar log_likelihood(FactorialCache& fcache, DetectorRelation& detectors, hist_vec signal_1, hist_vec signal_2, scalar rel_precision) {
     assert(signal_1.size() == signal_2.size());
     size_t n_bins = signal_1.size();
 

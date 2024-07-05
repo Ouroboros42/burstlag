@@ -17,6 +17,6 @@ cdef extern from "inputs/relation.hpp":
 cdef extern from "fast_sum/sum_terms.hpp":
     cdef double log_likelihood(
         FactorialCache& fcache, DetectorRelation& detectors,
-        vector[double] signal_1, vector[double] signal_2,
+        vector[size_t] signal_1, vector[size_t] signal_2,
         double rel_precision
     ) except +
