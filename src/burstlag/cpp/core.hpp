@@ -2,6 +2,9 @@
 #define CORE_H
 
 #include <vector>
+#include <cstddef>
+
+using std::size_t;
 
 /* Type for all scalars - can be changed to adjust speed vs precision */
 typedef double scalar;
