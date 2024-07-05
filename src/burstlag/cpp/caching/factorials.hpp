@@ -33,9 +33,4 @@ public:
     scalar log_binomial(size_t r, size_t s) const;
 };
 
-scalar get_fact(size_t n) {
-    FactorialCache cache(n);
-    return cache.log_factorial(n);
-}
-
 #endif

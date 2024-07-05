@@ -1,10 +1,10 @@
 from libcpp.vector cimport vector
 
-cdef extern from "caching/factorials.cpp":
+cdef extern from "caching/factorials.hpp":
     cdef cppclass FactorialCache:
         FactorialCache() except +
 
-cdef extern from "inputs/relation.cpp":
+cdef extern from "inputs/relation.hpp":
     cdef cppclass DetectorRelation:
         DetectorRelation() except +
 
@@ -14,5 +14,9 @@ cdef extern from "inputs/relation.cpp":
             size_t n_bins_sampled
         ) except +
 
-cdef extern from "fast_sum/sum_terms.cpp":
-    cdef double log_likelihood(FactorialCache& fcache, DetectorRelation& detectors, vector[double] signal_1, vector[double] signal_2, double rel_precision) except +
+cdef extern from "fast_sum/sum_terms.hpp":
+    cdef double log_likelihood(
+        FactorialCache& fcache, DetectorRelation& detectors,
+        vector[double] signal_1, vector[double] signal_2,
+        double rel_precision
+    ) except +
