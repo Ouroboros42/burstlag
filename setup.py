@@ -4,7 +4,9 @@ import numpy
 
 src_root = "src/"
 py_root = src_root + "burstlag/"
-cpp_root = src_root + "cpp/"
+cpp_root = py_root + "cpp/"
+
+cpp_lib_root = "cpplib"
 
 ext = Extension("*", [
         py_root + "__init__.pyx",
@@ -20,7 +22,7 @@ cython_module = cythonize(ext, build_dir="build", language_level = "3")
 setup(name='burst-lag',
     ext_modules=cython_module,
     include_dirs=[
-        "cpplib", "src/cpp",
+        cpp_lib_root, cpp_root,
         numpy.get_include()
     ]
 )

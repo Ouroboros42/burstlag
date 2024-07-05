@@ -1,4 +1,3 @@
-*.c
 build/
 pyvenv/
 *.egg-info
