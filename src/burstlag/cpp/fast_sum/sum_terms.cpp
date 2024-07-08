@@ -28,10 +28,10 @@ scalar BinSumTerms::get(size_t i, size_t j) const {
         fcache.log_binomial(count_1 - i, count_2 - j);
 }
 
-scalar bin_log_likelihood_unscaled(FactorialCache& fcache, DetectorRelation& detectors, size_t count_1, size_t count_2, scalar rel_precision) {
+scalar bin_log_likelihood(FactorialCache& fcache, DetectorRelation& detectors, size_t count_1, size_t count_2, scalar rel_precision) {
     BinSumTerms terms(fcache, detectors, count_1, count_2);
 
-    return log_sum_exp_peaked_2D(
+    return detectors.log_likelihood_prefactor(count_1, count_2) + log_sum_exp_peaked_2D(
         terms,
         detectors.lead_index_1(count_1, count_2),
         [detectors, count_1, count_2] (size_t row_i) { return detectors.lead_index_2(count_1, count_2, row_i); },
@@ -45,15 +45,15 @@ scalar log_likelihood(FactorialCache& fcache, DetectorRelation& detectors, hist_
 
     DetectorRelation flipped_detectors = detectors.flip();
 
-    scalar likelihood = detectors.log_likelihood_prefactor(sum(signal_1), sum(signal_2));
+    scalar likelihood = 0;
 
     for (size_t i_bin = 0; i_bin < n_bins; i_bin++) {
         size_t count_1 = signal_1[i_bin], count_2 = signal_2[i_bin];
 
         if (count_1 > count_2) {
-            likelihood += bin_log_likelihood_unscaled(fcache, flipped_detectors, count_2, count_1, rel_precision);
+            likelihood += bin_log_likelihood(fcache, flipped_detectors, count_2, count_1, rel_precision);
         } else {
-            likelihood += bin_log_likelihood_unscaled(fcache, detectors, count_1, count_2, rel_precision);
+            likelihood += bin_log_likelihood(fcache, detectors, count_1, count_2, rel_precision);
         }
     }
 

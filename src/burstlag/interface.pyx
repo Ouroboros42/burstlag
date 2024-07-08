@@ -1,10 +1,12 @@
 # distutils: language = c++
 
+cimport cython
+
 from libcpp.vector cimport vector
 
 import numpy as np
 
-from .interface cimport DetectorRelation as CPPDetectorRelation, FactorialCache as CPPFactorialCache, log_likelihood as cpp_log_likelihood
+from .cppdefs cimport DetectorRelation as CPPDetectorRelation, FactorialCache as CPPFactorialCache, log_likelihood as cpp_log_likelihood, bin_log_likelihood as cpp_bin_log_likelihood
 
 cdef class DetectorRelation:
     c_rel: CPPDetectorRelation
@@ -27,6 +29,9 @@ cdef vector[size_t] any_arr_to_countvec(arr) except *:
         else:
             v[i] = <size_t> elem
     return v
+
+def bin_log_likelihood(FactorialCache cache, DetectorRelation detectors, size_t count_1, size_t count_2, double rel_precision) -> double:
+    return cpp_bin_log_likelihood(cache.c_cache, detectors.c_rel, count_1, count_2, rel_precision)
 
 def log_likelihood(cache: FactorialCache, detectors: DetectorRelation, signal_1: np.ndarray, signal_2: np.ndarray, rel_precision: double) -> double:
     return cpp_log_likelihood(cache.c_cache, detectors.c_rel, any_arr_to_countvec(signal_1), any_arr_to_countvec(signal_2), rel_precision)

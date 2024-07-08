@@ -19,7 +19,7 @@ cpp_root = package_root + "cpp/"
 cpp_lib_root = "cpplib/" 
 
 source_files = [
-    package_root + "__init__.pyx",
+    package_root + "interface.pyx",
     cpp_root + "caching/factorials.cpp",
     cpp_root + "fast_sum/converging.cpp",
     cpp_root + "fast_sum/lazy.cpp",
