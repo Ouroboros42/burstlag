@@ -23,12 +23,10 @@ def find_peak(time_diff: float_array, likelihood: float_array, degree: int = 10)
 
     peak_index = np.argmax(extrema_likelihoods)
     peak_time = valid_extrema[peak_index]
-    peak_likelihood = extrema_likelihoods[peak_index]
-
     second_deriv = pderiv.deriv()
     fisher_info = -second_deriv(peak_time)
     if fisher_info < 0:
         logger.warning("Likelihood maximum not found - positive second derivative")
     stddev = np.sqrt(1 / np.abs(fisher_info))
 
-    return peak_time, stddev
+    return peak_time, stddev, pfit
