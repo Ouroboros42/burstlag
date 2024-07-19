@@ -16,7 +16,7 @@ def find_peak(time_diff: float_array, likelihood: float_array, degree: int = 10)
     pderiv = pfit.deriv()
     
     extrema = pderiv.roots()
-    real_extrema = np.real(extrema[np.is_real(extrema)])
+    real_extrema = np.real(extrema[np.isreal(extrema)])
     valid_extrema = real_extrema[poly_domain_check(real_extrema, pfit)]
     
     extrema_likelihoods = pfit(valid_extrema)
