@@ -17,11 +17,18 @@ cdef class DetectorRelation:
 cdef class FactorialCache:
     c_cache: CPPFactorialCache
 
-cdef vector[size_t] any_arr_to_countvec(arr) except *:
+ctypedef fused numeric_in:
+    int
+    long
+    float
+    double
+
+cdef vector[size_t] any_arr_to_countvec(numeric_in[:] arr) except *:
     cdef size_t length = arr.shape[0]
     cdef vector[size_t] v = vector[size_t](length)
 
     cdef size_t i
+    cdef numeric_in elem
     for i in range(length):
         elem = arr[i]
         if elem < 0:
@@ -33,5 +40,5 @@ cdef vector[size_t] any_arr_to_countvec(arr) except *:
 def bin_log_likelihood(FactorialCache cache, DetectorRelation detectors, size_t count_1, size_t count_2, double rel_precision) -> double:
     return cpp_bin_log_likelihood(cache.c_cache, detectors.c_rel, count_1, count_2, rel_precision)
 
-def log_likelihood(cache: FactorialCache, detectors: DetectorRelation, signal_1: np.ndarray, signal_2: np.ndarray, rel_precision: double) -> double:
+def log_likelihood(cache: FactorialCache, detectors: DetectorRelation, signal_1: numeric_in[:], signal_2: numeric_in[:], rel_precision: double) -> double:
     return cpp_log_likelihood(cache.c_cache, detectors.c_rel, any_arr_to_countvec(signal_1), any_arr_to_countvec(signal_2), rel_precision)
