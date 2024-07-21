@@ -5,14 +5,42 @@ cimport cython
 from libcpp.vector cimport vector
 
 import numpy as np
+import logging
+import sys
 
-from .cppdefs cimport DetectorRelation as CPPDetectorRelation, FactorialCache as CPPFactorialCache, log_likelihood as cpp_log_likelihood, bin_log_likelihood as cpp_bin_log_likelihood
+from .cppdefs cimport DetectorRelation as CPPDetectorRelation, FactorialCache as CPPFactorialCache, bin_log_likelihood as cpp_bin_log_likelihood
+
+def expected_real_events(background_rate: float, n_events: int, sample_time: float) -> float:
+    expected_background: float = sample_time * background_rate
+    
+    if expected_background > n_events:
+        logging.warning(f"Observed fewer events ({n_events} over {sample_time}) than predicted background_rate ({background_rate}).")
+        return sys.float_info.epsilon
+
+    return n_events - expected_background
 
 cdef class DetectorRelation:
     c_rel: CPPDetectorRelation
+    c_rel_flipped: CPPDetectorRelation
 
-    def __init__(self, bin_background_rate_1: float, bin_background_rate_2: float, total_count_1: int, total_count_2: int, n_bins_sampled: int) -> None:
-        self.c_rel = CPPDetectorRelation(bin_background_rate_1, bin_background_rate_2, total_count_1, total_count_2, n_bins_sampled)
+    def __init__(self, bin_background_rate_1: float = 0., bin_background_rate_2: float = 0., sensitivity_ratio_2_to_1: float = 1.) -> None:
+        self.c_rel = CPPDetectorRelation(bin_background_rate_1, bin_background_rate_2, sensitivity_ratio_2_to_1)
+        self.c_rel_flipped = self.c_rel.flip()
+
+    @classmethod
+    def from_counts(self, background_rate_1: float, background_rate_2: float, n_events_1: int, n_events_2: int, sample_time: float, bin_width: float) -> DetectorRelation:
+        return DetectorRelation(background_rate_1 * bin_width, background_rate_2 * bin_width,
+            expected_real_events(background_rate_2, n_events_2, sample_time) / expected_real_events(background_rate_1, n_events_1, sample_time)
+        )
+
+    @classmethod
+    def from_hist_arrays(self, background_rate_1: float, background_rate_2: float, hist_1: np.ndarray, hist_2: np.ndarray, bin_width: float = 1.) -> DetectorRelation:
+        n_bins = len(hist_1)
+        n_bins_2 = len(hist_2)
+        if n_bins != n_bins_2:
+            raise IndexError(f"Histograms have different numbers of bins {n_bins}, {n_bins_2}")
+
+        return DetectorRelation.from_counts(background_rate_1, background_rate_2, int(np.sum(hist_1)), int(np.sum(hist_2)), bin_width * n_bins, bin_width)
 
 cdef class FactorialCache:
     c_cache: CPPFactorialCache
@@ -23,22 +51,32 @@ ctypedef fused numeric_in:
     float
     double
 
-cdef vector[size_t] any_arr_to_countvec(numeric_in[:] arr) except *:
-    cdef size_t length = arr.shape[0]
-    cdef vector[size_t] v = vector[size_t](length)
+cdef size_t convert_to_count(numeric_in n):
+    if n < 0:
+        raise ValueError(f"Negative count: {n}")
 
-    cdef size_t i
-    cdef numeric_in elem
-    for i in range(length):
-        elem = arr[i]
-        if elem < 0:
-            raise ValueError("Negative Neutrino Count in bin",i,"is illegal")
-        else:
-            v[i] = <size_t> elem
-    return v
+    return <size_t> n
 
-def bin_log_likelihood(FactorialCache cache, DetectorRelation detectors, size_t count_1, size_t count_2, double rel_precision) -> double:
-    return cpp_bin_log_likelihood(cache.c_cache, detectors.c_rel, count_1, count_2, rel_precision)
+def bin_log_likelihood(FactorialCache cache, DetectorRelation detectors, numeric_in count_1, numeric_in count_2, double rel_precision) -> double:
+    return cpp_bin_log_likelihood(cache.c_cache, detectors.c_rel, convert_to_count(count_1), convert_to_count(count_2), rel_precision)
 
 def log_likelihood(cache: FactorialCache, detectors: DetectorRelation, signal_1: numeric_in[:], signal_2: numeric_in[:], rel_precision: double) -> double:
-    return cpp_log_likelihood(cache.c_cache, detectors.c_rel, any_arr_to_countvec(signal_1), any_arr_to_countvec(signal_2), rel_precision)
+    cdef Py_ssize_t n_bins = signal_1.shape[0]
+    cdef Py_ssize_t n_bins_2 = signal_2.shape[0]
+    if n_bins != n_bins_2:
+        raise IndexError(f"Signals have different numbers of bins {n_bins}, {n_bins_2}")
+
+    cdef double likelihood = 0
+    cdef Py_ssize_t i
+    cdef size_t count_1, count_2
+
+    for i in range(n_bins):
+        count_1 = convert_to_count(signal_1[i])
+        count_2 = convert_to_count(signal_2[i])
+
+        if count_1 > count_2:
+            likelihood += cpp_bin_log_likelihood(cache.c_cache, detectors.c_rel, count_1, count_2, rel_precision)
+        else:
+            likelihood += cpp_bin_log_likelihood(cache.c_cache, detectors.c_rel_flipped, count_2, count_1, rel_precision)
+    
+    return likelihood

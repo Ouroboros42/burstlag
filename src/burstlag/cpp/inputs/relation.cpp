@@ -24,12 +24,6 @@ DetectorRelation::DetectorRelation(scalar bin_background_rate_1, scalar bin_back
     bin_background_rate_2 * (1 + 1 / sensitivity_ratio_2_to_1)
 ) {}
 
-DetectorRelation::DetectorRelation(scalar bin_background_rate_1, scalar bin_background_rate_2, size_t total_count_1, size_t total_count_2, size_t n_bins_sampled)
-: DetectorRelation(
-    bin_background_rate_1, bin_background_rate_2,
-    (total_count_2 /(double) n_bins_sampled - bin_background_rate_2) / (total_count_1 /(double) n_bins_sampled - bin_background_rate_1)
-) {}
-
 DetectorRelation DetectorRelation::flip() {
     return DetectorRelation(log_sensitivity_2, log_sensitivity_1, rate_const_2, rate_const_1);
 }
