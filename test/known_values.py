@@ -24,6 +24,11 @@ class KnownValuesTest(unittest.TestCase):
             bin_log_likelihood(cache, rel, 10, 2, 0.1)
         )
 
+        self.assertAlmostEqual(
+            bin_log_likelihood(cache, rel, 10, 2, 0.1, False),
+            bin_log_likelihood(cache, rel, 10, 2, 0.1, False)
+        )
+
         self.assertAlmostEqual(-1.7982855941099491,
             log_likelihood(cache, rel, a1, a1, 0.1)
         )

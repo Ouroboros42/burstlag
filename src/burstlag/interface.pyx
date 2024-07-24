@@ -59,10 +59,10 @@ cdef size_t convert_to_count(numeric_in n):
 
     return <size_t> n
 
-def bin_log_likelihood(FactorialCache cache, DetectorRelation detectors, numeric_in count_1, numeric_in count_2, double rel_precision) -> double:
-    return cpp_bin_log_likelihood(cache.c_cache, detectors.c_rel, convert_to_count(count_1), convert_to_count(count_2), rel_precision)
+def bin_log_likelihood(FactorialCache cache, DetectorRelation detectors, numeric_in count_1, numeric_in count_2, double rel_precision, bint use_cache = True) -> double:
+    return cpp_bin_log_likelihood(cache.c_cache, detectors.c_rel, convert_to_count(count_1), convert_to_count(count_2), rel_precision, use_cache)
 
-def log_likelihood(cache: FactorialCache, detectors: DetectorRelation, signal_1: numeric_in[:], signal_2: numeric_in[:], rel_precision: double) -> double:
+def log_likelihood(cache: FactorialCache, detectors: DetectorRelation, signal_1: numeric_in[:], signal_2: numeric_in[:], rel_precision: double, use_cache: bint = True) -> double:
     cdef Py_ssize_t n_bins = signal_1.shape[0]
     cdef Py_ssize_t n_bins_2 = signal_2.shape[0]
     if n_bins != n_bins_2:
@@ -77,8 +77,8 @@ def log_likelihood(cache: FactorialCache, detectors: DetectorRelation, signal_1:
         count_2 = convert_to_count(signal_2[i])
 
         if count_1 > count_2:
-            likelihood += cpp_bin_log_likelihood(cache.c_cache, detectors.c_rel, count_1, count_2, rel_precision)
+            likelihood += cpp_bin_log_likelihood(cache.c_cache, detectors.c_rel, count_1, count_2, rel_precision, use_cache)
         else:
-            likelihood += cpp_bin_log_likelihood(cache.c_cache, detectors.c_rel_flipped, count_2, count_1, rel_precision)
+            likelihood += cpp_bin_log_likelihood(cache.c_cache, detectors.c_rel_flipped, count_2, count_1, rel_precision, use_cache)
     
     return likelihood

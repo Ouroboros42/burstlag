@@ -28,11 +28,13 @@ scalar BinSumTerms::get(size_t i, size_t j) const {
         fcache.log_binomial(count_1 - i, count_2 - j);
 }
 
-scalar bin_log_likelihood(FactorialCache& fcache, DetectorRelation& detectors, size_t count_1, size_t count_2, scalar rel_precision) {
+scalar bin_log_likelihood(FactorialCache& fcache, DetectorRelation& detectors, size_t count_1, size_t count_2, scalar rel_precision, bool use_cache) {
     likelihood_args arg_key = { count_1, count_2, rel_precision };
 
-    if (auto cache_item = detectors.previous_outputs.find(arg_key); cache_item != detectors.previous_outputs.end()) {
-        return cache_item->second;
+    if (use_cache) {
+        if (auto cache_item = detectors.previous_outputs.find(arg_key); cache_item != detectors.previous_outputs.end()) {
+            return cache_item->second;
+        }
     }
 
     BinSumTerms terms(fcache, detectors, count_1, count_2);
@@ -44,6 +46,7 @@ scalar bin_log_likelihood(FactorialCache& fcache, DetectorRelation& detectors, s
         rel_precision
     );
 
-    detectors.previous_outputs[arg_key] = result;
+    if (use_cache) detectors.previous_outputs[arg_key] = result;
+    
     return result;
 }
