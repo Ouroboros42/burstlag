@@ -21,6 +21,7 @@ cpp_lib_root = "cpplib/"
 source_files = [
     package_root + "interface.pyx",
     cpp_root + "caching/factorials.cpp",
+    cpp_root + "caching/outputs.cpp",
     cpp_root + "fast_sum/converging.cpp",
     cpp_root + "fast_sum/lazy.cpp",
     cpp_root + "fast_sum/sum_terms.cpp",

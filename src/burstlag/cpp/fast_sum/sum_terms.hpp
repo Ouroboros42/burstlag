@@ -28,7 +28,4 @@ public:
 /* Returns the log_likelihood of the given observed neutrino counts to specified rel_precision */
 scalar bin_log_likelihood(FactorialCache& fcache, DetectorRelation& detectors, size_t count_1, size_t count_2, scalar rel_precision);
 
-/* Returns the log_likelihood (up to a constant factor which depends only on detectors and number of bins) of observing the two signals from the given detectors */
-scalar log_likelihood(FactorialCache& fcache, DetectorRelation& detectors, hist_vec signal_1, hist_vec signal_2, scalar rel_precision);
-
 #endif

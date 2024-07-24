@@ -4,20 +4,12 @@ cimport cython
 
 from libcpp.vector cimport vector
 
-import numpy as np
 import logging
-import sys
+import numpy as np
+from sys import float_info
+from functools import lru_cache
 
 from .cppdefs cimport DetectorRelation as CPPDetectorRelation, FactorialCache as CPPFactorialCache, bin_log_likelihood as cpp_bin_log_likelihood
-
-def expected_real_events(background_rate: float, n_events: int, sample_time: float) -> float:
-    expected_background: float = sample_time * background_rate
-    
-    if expected_background > n_events:
-        logging.warning(f"Observed fewer events ({n_events} over {sample_time}) than predicted background_rate ({background_rate}).")
-        return sys.float_info.epsilon
-
-    return n_events - expected_background
 
 cdef class DetectorRelation:
     c_rel: CPPDetectorRelation
@@ -27,20 +19,30 @@ cdef class DetectorRelation:
         self.c_rel = CPPDetectorRelation(bin_background_rate_1, bin_background_rate_2, sensitivity_ratio_2_to_1)
         self.c_rel_flipped = self.c_rel.flip()
 
+    @staticmethod
+    def expected_real_events(background_rate: float, n_events: int, sample_time: float) -> float:
+        expected_background: float = sample_time * background_rate
+        
+        if expected_background > n_events:
+            logging.warning(f"Observed fewer events ({n_events} over {sample_time}) than predicted background_rate ({background_rate}).")
+            return float_info.epsilon
+
+        return n_events - expected_background
+
     @classmethod
-    def from_counts(self, background_rate_1: float, background_rate_2: float, n_events_1: int, n_events_2: int, sample_time: float, bin_width: float) -> DetectorRelation:
-        return DetectorRelation(background_rate_1 * bin_width, background_rate_2 * bin_width,
-            expected_real_events(background_rate_2, n_events_2, sample_time) / expected_real_events(background_rate_1, n_events_1, sample_time)
+    def from_counts(cls, background_rate_1: float, background_rate_2: float, n_events_1: int, n_events_2: int, sample_time: float, bin_width: float) -> DetectorRelation:
+        return cls(background_rate_1 * bin_width, background_rate_2 * bin_width,
+            cls.expected_real_events(background_rate_2, n_events_2, sample_time) / cls.expected_real_events(background_rate_1, n_events_1, sample_time)
         )
 
     @classmethod
-    def from_hist_arrays(self, background_rate_1: float, background_rate_2: float, hist_1: np.ndarray, hist_2: np.ndarray, bin_width: float = 1.) -> DetectorRelation:
+    def from_hist_arrays(cls, background_rate_1: float, background_rate_2: float, hist_1: np.ndarray, hist_2: np.ndarray, bin_width: float = 1.) -> DetectorRelation:
         n_bins = len(hist_1)
         n_bins_2 = len(hist_2)
         if n_bins != n_bins_2:
             raise IndexError(f"Histograms have different numbers of bins {n_bins}, {n_bins_2}")
 
-        return DetectorRelation.from_counts(background_rate_1, background_rate_2, int(np.sum(hist_1)), int(np.sum(hist_2)), bin_width * n_bins, bin_width)
+        return cls.from_counts(background_rate_1, background_rate_2, int(np.sum(hist_1)), int(np.sum(hist_2)), bin_width * n_bins, bin_width)
 
 cdef class FactorialCache:
     c_cache: CPPFactorialCache

@@ -2,11 +2,13 @@
 #define COMPARISON_H
 
 #include "core.hpp"
-#include "fast_sum/converging.hpp"
 #include "caching/factorials.hpp"
+#include "caching/outputs.hpp"
+#include "fast_sum/converging.hpp"
 #include "fast_sum/lazy.hpp"
 
 #include <functional>
+#include <unordered_map>
 
 typedef std::function<scalar(size_t i, size_t j)> term_gen;
 
@@ -28,6 +30,8 @@ struct DetectorRelation {
         scalar log_rate_const_2;
 
         scalar rate_const_ratio_2_to_1;
+
+        std::unordered_map<likelihood_args, scalar, hash_args> previous_outputs;
 
         DetectorRelation();
         
