@@ -4,10 +4,6 @@
 #include <numeric>
 #include <stdexcept>
 
-size_t sum(hist_vec values) {
-    return std::reduce(values.begin(), values.end());
-}
-
 BinSumTerms::BinSumTerms(FactorialCache& fcache, DetectorRelation& detectors, size_t count_1, size_t count_2) :
     count_1(count_1), count_2(count_2), fcache(fcache), detectors(detectors)
 {
