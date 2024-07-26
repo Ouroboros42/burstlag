@@ -6,6 +6,7 @@
 #include <optional>
 #include <stdexcept>
 #include <iostream>
+#include <utility>
 
 // Chokepoint of entire operation
 inline scalar exp_scaled(scalar log_x, scalar log_rescale) {

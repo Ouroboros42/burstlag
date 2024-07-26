@@ -5,8 +5,6 @@
 #include "caching/factorials.hpp"
 #include "inputs/relation.hpp"
 
-typedef std::vector<size_t> hist_vec;
-
 /* Terms in sum of to find likelihood of two observed neutrino counts (count_1, count_2) in the same time window,
 for the specified detectors. */
 class BinSumTerms : public Lazy2DArray {
@@ -23,6 +21,10 @@ public:
     size_t size_y() const;
 
     scalar get(size_t i_x, size_t i_y) const;
+
+    size_t lead_index_1() const;
+
+    size_t lead_index_2(size_t index_1) const;
 };
 
 /* Returns the log_likelihood of the given observed neutrino counts to specified rel_precision */

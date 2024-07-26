@@ -18,14 +18,23 @@ cpp_root = package_root + "cpp/"
 # 3rd party c++ libraries (header-only)
 cpp_lib_root = "cpplib/" 
 
+cpp_source_files = [
+    "caching/factorials.cpp",
+    "caching/outputs.cpp",
+    "fast_sum/converging.cpp",
+    "fast_sum/lazy.cpp",
+    "fast_sum/sum_terms.cpp",
+    "inputs/relation.cpp",
+    "util/quadratic.cpp",
+]
+
+cython_source_files = [
+    "interface.pyx",
+]
+
 source_files = [
-    package_root + "interface.pyx",
-    cpp_root + "caching/factorials.cpp",
-    cpp_root + "caching/outputs.cpp",
-    cpp_root + "fast_sum/converging.cpp",
-    cpp_root + "fast_sum/lazy.cpp",
-    cpp_root + "fast_sum/sum_terms.cpp",
-    cpp_root + "inputs/relation.cpp"
+    *(package_root + src_file for src_file in cython_source_files),
+    *(cpp_root + src_file for src_file in cpp_source_files)
 ]
 
 # Locations with header files

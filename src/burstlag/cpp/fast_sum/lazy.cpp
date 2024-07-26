@@ -5,9 +5,10 @@ LazyArray::~LazyArray() {}
 Lazy2DArray::~Lazy2DArray() {}
 
 LazySubArray::LazySubArray(const Lazy2DArray& source, size_t row, size_t start_index, bool direction) : 
-    source(source), row(row),
-    direction(direction),
-    start_index(start_index)
+    source(source),
+    row(row),
+    start_index(start_index),
+    direction(direction)
 {}
 
 bool LazySubArray::is_empty() const { return start_index >= source.size_y(); }
