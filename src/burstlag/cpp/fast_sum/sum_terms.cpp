@@ -89,12 +89,7 @@ scalar bin_log_likelihood(FactorialCache& fcache, DetectorRelation& detectors, s
 
     BinSumTerms terms(fcache, detectors, count_1, count_2);
 
-    scalar result = detectors.log_likelihood_prefactor(count_1, count_2) + log_sum_exp_peaked_2D(
-        terms,
-        terms.lead_index_1(),
-        [&terms] (size_t row_i) { return terms.lead_index_2(row_i); },
-        rel_precision
-    );
+    scalar result = detectors.log_likelihood_prefactor(count_1, count_2) + terms.log_sum_exp(rel_precision);
 
     if (use_cache) detectors.previous_outputs[arg_key] = result;
     

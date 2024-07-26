@@ -1,13 +1,14 @@
 #ifndef SUM_TERMS_H
 #define SUM_TERMS_H
 
-#include "fast_sum/lazy.hpp"
 #include "caching/factorials.hpp"
+#include "fast_sum/converging.hpp"
+#include "fast_sum/lazy.hpp"
 #include "inputs/relation.hpp"
 
 /* Terms in sum of to find likelihood of two observed neutrino counts (count_1, count_2) in the same time window,
 for the specified detectors. */
-class BinSumTerms : public Lazy2DArray {
+class BinSumTerms : public PeakedLazy2DArray {
 public:
     size_t count_1;
     size_t count_2;
