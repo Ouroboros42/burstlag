@@ -21,12 +21,12 @@ public:
     virtual ~Lazy2DArray();
 
     /* Size of array along first index */
-    virtual size_t size_x() const = 0;
+    virtual size_t size_1() const = 0;
     /* Size of array along second index*/
-    virtual size_t size_y() const = 0;
+    virtual size_t size_2() const = 0;
 
-    /* Get element of array at index (i_x, i_y) */
-    virtual scalar get(size_t i_x, size_t i_y) const = 0;
+    /* Get element of array at index (i_1, i_2) */
+    virtual scalar get(size_t i_1, size_t i_2) const = 0;
 };
 
 /* A LazyArray that is determined by part of a row of another 2-D Lazy Array */

@@ -18,10 +18,10 @@ public:
 
     BinSumTerms(FactorialCache& fcache, DetectorRelation& detectors, size_t count_1, size_t count_2);
 
-    size_t size_x() const;
-    size_t size_y() const;
+    size_t size_1() const;
+    size_t size_2() const;
 
-    scalar get(size_t i_x, size_t i_y) const;
+    scalar get(size_t i_1, size_t i_2) const;
 
     size_t lead_index_1() const;
 

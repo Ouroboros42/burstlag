@@ -12,9 +12,9 @@ BinSumTerms::BinSumTerms(FactorialCache& fcache, DetectorRelation& detectors, si
     fcache.build_upto(count_1 + count_2);
 }
 
-size_t BinSumTerms::size_x() const { return count_1 + 1; }
+size_t BinSumTerms::size_1() const { return count_1 + 1; }
 
-size_t BinSumTerms::size_y() const { return count_2 + 1; }
+size_t BinSumTerms::size_2() const { return count_2 + 1; }
 
 scalar BinSumTerms::get(size_t i, size_t j) const {
     if (i > count_1 || j > count_2) {
