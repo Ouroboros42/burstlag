@@ -1,5 +1,5 @@
 // Copyright 2021 Johan Rade (johan.rade@gmail.com)
-// Distributed under the MIT license (https://opensource.org/licenses/MIT)
+// Distributed under the MIT license (https://opensource.org/licenses/MIT) 
 
 #ifndef FAST_EXP_H
 #define FAST_EXP_H
@@ -7,9 +7,8 @@
 #include <cstdint>
 #include <cstring>
 
-
-inline float fastExp(float x);
-inline double fastExp(double x);
+inline float fast_exp(float x);
+inline double fast_exp(double x);
 
 /*
 These functions return an approximation of exp(x) with a relative error <3%.
@@ -55,7 +54,7 @@ Neural Computation 11, 853–862 (1999).
 */
 
 
-inline float fastExp(float x)
+inline float fast_exp(float x)
 {
     constexpr float a = (1 << 23) / 0.69314718f;
     constexpr float b = (1 << 23) * (127 - 0.043677448f);
@@ -72,7 +71,7 @@ inline float fastExp(float x)
 }
 
 
-inline double fastExp(double x)
+inline double fast_exp(double x)
 {
     constexpr double a = (1ll << 52) / 0.6931471805599453;
     constexpr double b = (1ll << 52) * (1023 - 0.04367744890362246);

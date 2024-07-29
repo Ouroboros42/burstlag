@@ -7,7 +7,7 @@
 typedef std::tuple<size_t, size_t, scalar> likelihood_args;
 
 struct hash_args {
-    size_t operator()(const likelihood_args& args) const;
+    size_t operator()(likelihood_args const& args) const;
 };
 
 #endif

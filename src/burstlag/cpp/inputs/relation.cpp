@@ -1,5 +1,4 @@
 #include "relation.hpp"
-#include "fast_sum/converging.hpp"
 
 #include <cmath>
 #include <optional>

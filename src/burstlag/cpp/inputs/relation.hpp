@@ -4,13 +4,8 @@
 #include "core.hpp"
 #include "caching/factorials.hpp"
 #include "caching/outputs.hpp"
-#include "fast_sum/converging.hpp"
-#include "fast_sum/lazy.hpp"
 
-#include <functional>
 #include <unordered_map>
-
-typedef std::function<scalar(size_t i, size_t j)> term_gen;
 
 /* Encodes information about relative rates of both detectors
 Relative sensitivity to supernova event is inferred from number of observed events */

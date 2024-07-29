@@ -1,4 +1,5 @@
 #include "fast_sum/sum_terms.hpp"
+#include "fast_sum/converging.hpp"
 #include "util/quadratic.hpp"
 
 #include <cassert>
@@ -72,6 +73,7 @@ size_t BinSumTerms::lead_index_1() const {
 
     if (auto index = valid_index(roots, count_1)) return *index;
 
+    // Analytic location has failed, peak must be at boundary
     scalar first_lead = get(0, lead_index_2(0));
     scalar last_lead = get(count_1, lead_index_2(count_1));
 
@@ -89,7 +91,7 @@ scalar bin_log_likelihood(FactorialCache& fcache, DetectorRelation& detectors, s
 
     BinSumTerms terms(fcache, detectors, count_1, count_2);
 
-    scalar result = detectors.log_likelihood_prefactor(count_1, count_2) + terms.log_sum_exp(rel_precision);
+    scalar result = detectors.log_likelihood_prefactor(count_1, count_2) + log_sum_exp(terms, rel_precision);
 
     if (use_cache) detectors.previous_outputs[arg_key] = result;
     

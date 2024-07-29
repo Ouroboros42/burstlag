@@ -1,4 +1,4 @@
-.PHONY: build clean rebuild test retest
+.PHONY: build clean rebuild test retest time retime
 
 build:
 	pip install .
@@ -12,4 +12,9 @@ rebuild: clean build
 test:
 	python -m unittest discover -s test -p "*.py" -t .
 
+time:
+	python test/timing/simple.py
+
 retest: rebuild test
+
+retime: rebuild time

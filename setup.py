@@ -7,7 +7,7 @@ import numpy
 
 py_lang_level = "3"
 c_lang = "c++"
-c_stdlib_ver = "c++17"
+c_std_ver = "c++20"
 
 build_root = "build/"
 
@@ -21,8 +21,6 @@ cpp_lib_root = "cpplib/"
 cpp_source_files = [
     "caching/factorials.cpp",
     "caching/outputs.cpp",
-    "fast_sum/converging.cpp",
-    "fast_sum/lazy.cpp",
     "fast_sum/sum_terms.cpp",
     "inputs/relation.cpp",
     "util/quadratic.cpp",
@@ -46,8 +44,8 @@ include_dirs = [
 
 # Match compiler-dependent argument format
 platform_extra_compile_args = {
-    "msvc": [ f"/std:{c_stdlib_ver}" ],
-    "unix": [ f"-std={c_stdlib_ver}"]
+    "msvc": [ f"/std:{c_std_ver}" ],
+    "unix": [ f"-std={c_std_ver}"]
 }
 
 class PlatformSpecificBuildExt(build_ext):
