@@ -7,6 +7,7 @@
 #include <fastexp.hpp>
 #include <cmath>
 #include <utility>
+#include <iostream>
 
 // Chokepoint of entire operation
 scalar exp_scaled(scalar log_x, scalar log_rescale) {
@@ -76,7 +77,6 @@ template <PeakedLazyArray2D<scalar> A2, LazyArray<LazyArrayRow<scalar, A2>> RA>
 scalar sum_exp_rows(RA const& rows, scalar total, scalar log_rescale, scalar term_rel_precision) {
     size_t n_rows = rows.size();
     for (size_t i = 0; i < n_rows; i++) {
-        scalar old_total = total;
         total = peaked_sum_exp(rows.get(i), total, log_rescale, term_rel_precision);
     }
     return total;

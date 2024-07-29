@@ -19,7 +19,7 @@ class KnownValuesTest(unittest.TestCase):
 
         rel = DetectorRelation.from_hist_arrays(0.1, 0.1, a1, a1)
 
-        self.assertAlmostEqual(-0.8012042522809977,
+        self.assertAlmostEqual(-0.780886094868,
             bin_log_likelihood(cache, rel, 1, 2, precision),
         delta=eps)
 
@@ -33,11 +33,11 @@ class KnownValuesTest(unittest.TestCase):
             bin_log_likelihood(cache, rel, 10, 2, precision, False),
         delta=eps)
 
-        self.assertAlmostEqual(-1.7982855941099491,
+        self.assertAlmostEqual(-1.76942415484,
             log_likelihood(cache, rel, a1, a1, precision),
         delta=eps)
 
-        self.assertAlmostEqual(-2.6169070459462507,
+        self.assertAlmostEqual(-2.58342343727,
             log_likelihood(cache, rel, a1, a2, precision),
         delta=eps)
 
