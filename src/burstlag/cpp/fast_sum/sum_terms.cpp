@@ -80,6 +80,10 @@ size_t BinSumTerms::lead_index_1() const {
     return (first_lead > last_lead) ? 0 : count_1;
 }
 
+scalar BinSumTerms::log_likelihood_prefactor() const {
+    return detectors.log_sensitivity_1 * count_1 + detectors.log_sensitivity_2 * count_2;
+}
+
 scalar bin_log_likelihood(FactorialCache& fcache, DetectorRelation& detectors, size_t count_1, size_t count_2, scalar rel_precision, bool use_cache) {
     likelihood_args arg_key = { count_1, count_2, rel_precision };
 
@@ -91,7 +95,7 @@ scalar bin_log_likelihood(FactorialCache& fcache, DetectorRelation& detectors, s
 
     BinSumTerms terms(fcache, detectors, count_1, count_2);
 
-    scalar result = detectors.log_likelihood_prefactor(count_1, count_2) + log_sum_exp(terms, rel_precision);
+    scalar result = terms.log_likelihood_prefactor() + log_sum_exp(terms, rel_precision);
 
     if (use_cache) detectors.previous_outputs[arg_key] = result;
     

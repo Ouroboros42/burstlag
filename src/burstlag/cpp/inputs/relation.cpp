@@ -26,7 +26,3 @@ DetectorRelation::DetectorRelation(scalar bin_background_rate_1, scalar bin_back
 DetectorRelation DetectorRelation::flip() {
     return DetectorRelation(log_sensitivity_2, log_sensitivity_1, rate_const_2, rate_const_1);
 }
-
-scalar DetectorRelation::log_likelihood_prefactor(size_t total_events_1, size_t total_events_2) {
-    return log_sensitivity_1 * total_events_1 + log_sensitivity_2 * total_events_2;
-}

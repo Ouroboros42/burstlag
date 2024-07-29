@@ -23,6 +23,8 @@ struct BinSumTerms {
     size_t lead_index_1() const;
 
     size_t lead_index_2(size_t index_1) const;
+    
+    scalar log_likelihood_prefactor() const;
 };
 
 /* Returns the log_likelihood of the given observed neutrino counts to specified rel_precision */

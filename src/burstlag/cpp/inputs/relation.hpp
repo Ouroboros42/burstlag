@@ -35,8 +35,6 @@ struct DetectorRelation {
         DetectorRelation(scalar bin_background_rate_1, scalar bin_background_rate_2, scalar sensitivity_ratio_2_to_1);
 
         DetectorRelation flip();
-
-        scalar log_likelihood_prefactor(size_t total_events_1, size_t total_events_2);
 };
 
 #endif
