@@ -17,24 +17,25 @@ class DetectorRelation {
     DetectorRelation(scalar_pair bin_background_rate, scalar_pair sensitivity);
 
     std::unordered_map<likelihood_args, scalar, hash_args> previous_outputs;
+
+    // -log(1 + p/a), -log(1 + a/p)
+    scalar_pair log_sensitivity;
     
-    public:
-        // -log(1 + p/a), -log(1 + a/p)
-        scalar_pair log_sensitivity;
-        
-        // b(1 + p/a) = alpha, q(1 + a/p) = rho
-        scalar_pair rate_const;
-        scalar_pair log_rate_const;
+    // b(1 + p/a) = alpha, q(1 + a/p) = rho
+    scalar_pair rate_const;
+    scalar_pair log_rate_const;
 
+    friend class BinSumTerms;
 
-        DetectorRelation(scalar bin_background_rate_1, scalar bin_background_rate_2, scalar sensitivity_ratio_2_to_1);
+public:
+    DetectorRelation(scalar bin_background_rate_1, scalar bin_background_rate_2, scalar sensitivity_ratio_2_to_1);
 
-        DetectorRelation();
+    DetectorRelation();
 
-        DetectorRelation flip();
-        
-        /* Returns the log_likelihood of the given observed neutrino counts to specified rel_precision */
-        scalar bin_log_likelihood(FactorialCache& fcache, size_t count_1, size_t count_2, scalar rel_precision, bool use_cache);
+    DetectorRelation flip();
+    
+    /* Returns the log_likelihood of the given observed neutrino counts to specified rel_precision */
+    scalar bin_log_likelihood(FactorialCache& fcache, size_t count_1, size_t count_2, scalar rel_precision, bool use_cache);
 };
 
 #endif

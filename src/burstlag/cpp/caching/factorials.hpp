@@ -4,10 +4,10 @@
 #include "core.hpp"
 
 class FactorialCache {
-private:
     size_t max_n;
     vec log_n;
     vec log_n_factorial;
+    
 public:
     FactorialCache();
     FactorialCache(size_t max_n);

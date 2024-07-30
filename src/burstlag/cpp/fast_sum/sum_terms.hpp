@@ -6,13 +6,14 @@
 
 /* Terms in sum of to find likelihood of two observed neutrino counts (count_1, count_2) in the same time window,
 for the specified detectors. */
-struct BinSumTerms {
+class BinSumTerms {
     size_t count_1;
     size_t count_2;
 
     FactorialCache const& fcache;
     DetectorRelation const& detectors;
 
+public:
     BinSumTerms(FactorialCache& fcache, DetectorRelation& detectors, size_t count_1, size_t count_2);
 
     size_t size_1() const;
