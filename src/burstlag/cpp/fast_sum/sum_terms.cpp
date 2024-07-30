@@ -1,5 +1,4 @@
 #include "fast_sum/sum_terms.hpp"
-#include "fast_sum/converging.hpp"
 #include "util/quadratic.hpp"
 
 #include <cassert>
@@ -66,9 +65,9 @@ size_t BinSumTerms::lead_index_1() const {
     if (detectors.rate_const_1 < 1) return 0;
 
     quad_roots roots = solve_quadratic(
-        1 - detectors.rate_const_ratio_2_to_1,
-        detectors.rate_const_2 - detectors.rate_const_1 - 2 * detectors.rate_const_ratio_2_to_1 - count_1 - count_2,
-        detectors.rate_const_2 - detectors.rate_const_ratio_2_to_1 - count_2 + (detectors.rate_const_1 - 1) * count_1 - 1
+        detectors.rate_const_1 - detectors.rate_const_2,
+        (detectors.rate_const_2 - detectors.rate_const_1 - count_1 - count_2) * detectors.rate_const_1 - 2 * detectors.rate_const_2,
+        (detectors.rate_const_1 - 1) * (count_1 + detectors.rate_const_2) - count_2 - 1
     );
 
     if (auto index = valid_index(roots, count_1)) return *index;
@@ -82,22 +81,4 @@ size_t BinSumTerms::lead_index_1() const {
 
 scalar BinSumTerms::log_likelihood_prefactor() const {
     return detectors.log_sensitivity_1 * count_1 + detectors.log_sensitivity_2 * count_2;
-}
-
-scalar bin_log_likelihood(FactorialCache& fcache, DetectorRelation& detectors, size_t count_1, size_t count_2, scalar rel_precision, bool use_cache) {
-    likelihood_args arg_key = { count_1, count_2, rel_precision };
-
-    if (use_cache) {
-        if (auto cache_item = detectors.previous_outputs.find(arg_key); cache_item != detectors.previous_outputs.end()) {
-            return cache_item->second;
-        }
-    }
-
-    BinSumTerms terms(fcache, detectors, count_1, count_2);
-
-    scalar result = terms.log_likelihood_prefactor() + log_sum_exp(terms, rel_precision);
-
-    if (use_cache) detectors.previous_outputs[arg_key] = result;
-    
-    return result;
 }

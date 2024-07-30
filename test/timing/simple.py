@@ -1,7 +1,7 @@
 import numpy as np
 from timeit import timeit
 
-from burstlag import FactorialCache, DetectorRelation, log_likelihood, bin_log_likelihood
+from burstlag import FactorialCache, DetectorRelation
 
 def simple_timing():
     a1 = np.array([10000, 1000, 100, 10, 1, 0], dtype=np.float64)
@@ -12,7 +12,7 @@ def simple_timing():
 
     precision = 0.1
 
-    compute = lambda: log_likelihood(cache, rel, a1, a1, precision, False)
+    compute = lambda: rel.log_likelihood(cache, a1, a1, precision, False)
     
     n = 1000
     avg = timeit(compute, number=n) / n

@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 
-from burstlag import FactorialCache, DetectorRelation, log_likelihood, bin_log_likelihood
+from burstlag import FactorialCache, DetectorRelation
 
 class FailStatesTest(unittest.TestCase):
     def test(self):

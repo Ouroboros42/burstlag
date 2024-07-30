@@ -9,7 +9,7 @@
 
 /* Encodes information about relative rates of both detectors
 Relative sensitivity to supernova event is inferred from number of observed events */
-struct DetectorRelation {
+class DetectorRelation {
     public:
         // -log(1 + p/a)
         scalar log_sensitivity_1;
@@ -18,13 +18,11 @@ struct DetectorRelation {
         
         // b(1 + p/a) = alpha
         scalar rate_const_1;  
-        scalar log_rate_const_1;
-
         // q(1 + a/p) = rho
         scalar rate_const_2;
-        scalar log_rate_const_2;
 
-        scalar rate_const_ratio_2_to_1;
+        scalar log_rate_const_1;
+        scalar log_rate_const_2;
 
         std::unordered_map<likelihood_args, scalar, hash_args> previous_outputs;
 
@@ -35,6 +33,9 @@ struct DetectorRelation {
         DetectorRelation(scalar bin_background_rate_1, scalar bin_background_rate_2, scalar sensitivity_ratio_2_to_1);
 
         DetectorRelation flip();
+        
+        /* Returns the log_likelihood of the given observed neutrino counts to specified rel_precision */
+        scalar bin_log_likelihood(FactorialCache& fcache, size_t count_1, size_t count_2, scalar rel_precision, bool use_cache);
 };
 
 #endif

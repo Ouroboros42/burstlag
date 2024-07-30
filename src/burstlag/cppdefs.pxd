@@ -16,9 +16,9 @@ cdef extern from "inputs/relation.hpp":
 
         DetectorRelation flip() except +
 
-cdef extern from "fast_sum/sum_terms.hpp":
-    cdef double bin_log_likelihood(
-        FactorialCache& fcache, DetectorRelation& detectors, 
-        size_t count_1, size_t count_2, 
-        double rel_precision, bint use_cache,
-    ) except +
+        double bin_log_likelihood(
+            FactorialCache& fcache,
+            size_t count_1, size_t count_2,
+            double rel_precision,
+            bint use_cache
+        ) except +

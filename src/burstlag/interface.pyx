@@ -9,13 +9,28 @@ import numpy as np
 from sys import float_info
 from functools import lru_cache
 
-from .cppdefs cimport DetectorRelation as CPPDetectorRelation, FactorialCache as CPPFactorialCache, bin_log_likelihood as cpp_bin_log_likelihood
+from .cppdefs cimport DetectorRelation as CPPDetectorRelation, FactorialCache as CPPFactorialCache
+
+cdef class FactorialCache:
+    c_cache: CPPFactorialCache
+
+ctypedef fused numeric_in:
+    int
+    long
+    float
+    double
+
+cdef size_t convert_to_count(numeric_in n):
+    if n < 0:
+        raise ValueError(f"Negative count: {n}")
+
+    return <size_t> n
 
 cdef class DetectorRelation:
     c_rel: CPPDetectorRelation
     c_rel_flipped: CPPDetectorRelation
 
-    def __init__(self, bin_background_rate_1: float = 0., bin_background_rate_2: float = 0., sensitivity_ratio_2_to_1: float = 1.) -> None:
+    def __init__(self: DetectorRelation, bin_background_rate_1: float = 0., bin_background_rate_2: float = 0., sensitivity_ratio_2_to_1: float = 1.) -> None:
         self.c_rel = CPPDetectorRelation(bin_background_rate_1, bin_background_rate_2, sensitivity_ratio_2_to_1)
         self.c_rel_flipped = self.c_rel.flip()
 
@@ -43,40 +58,25 @@ cdef class DetectorRelation:
             raise IndexError(f"Histograms have different numbers of bins {n_bins}, {n_bins_2}")
 
         return cls.from_counts(background_rate_1, background_rate_2, int(np.sum(hist_1)), int(np.sum(hist_2)), bin_width * n_bins, bin_width)
-
-cdef class FactorialCache:
-    c_cache: CPPFactorialCache
-
-ctypedef fused numeric_in:
-    int
-    long
-    float
-    double
-
-cdef size_t convert_to_count(numeric_in n):
-    if n < 0:
-        raise ValueError(f"Negative count: {n}")
-
-    return <size_t> n
-
-cpdef double bin_log_likelihood(FactorialCache cache, DetectorRelation detectors, numeric_in count_1, numeric_in count_2, double rel_precision, bint use_cache = True):
-    cdef size_t u_count_1 = convert_to_count(count_1)
-    cdef size_t u_count_2 = convert_to_count(count_2)
-
-    if u_count_1 > u_count_2:
-        return cpp_bin_log_likelihood(cache.c_cache, detectors.c_rel, u_count_1, u_count_2, rel_precision, use_cache)
-    else:
-        return cpp_bin_log_likelihood(cache.c_cache, detectors.c_rel_flipped, u_count_2, u_count_1, rel_precision, use_cache)
     
-def log_likelihood(FactorialCache cache, DetectorRelation detectors, numeric_in[:] signal_1, numeric_in[:] signal_2, double rel_precision, bint use_cache = True) -> float:
-    cdef Py_ssize_t n_bins = signal_1.shape[0]
-    cdef Py_ssize_t n_bins_2 = signal_2.shape[0]
-    if n_bins != n_bins_2:
-        raise IndexError(f"Signals have different numbers of bins {n_bins}, {n_bins_2}")
+    cpdef double bin_log_likelihood(DetectorRelation self, FactorialCache cache, numeric_in count_1, numeric_in count_2, double rel_precision, bint use_cache = True):
+        cdef size_t u_count_1 = convert_to_count(count_1)
+        cdef size_t u_count_2 = convert_to_count(count_2)
 
-    cdef double likelihood = 0
-    cdef Py_ssize_t i
-    for i in range(n_bins):
-        likelihood += bin_log_likelihood(cache, detectors, signal_1[i], signal_2[i], rel_precision, use_cache)
+        if u_count_1 > u_count_2:
+            return self.c_rel.bin_log_likelihood(cache.c_cache, u_count_1, u_count_2, rel_precision, use_cache)
+        else:
+            return self.c_rel_flipped.bin_log_likelihood(cache.c_cache, u_count_2, u_count_1, rel_precision, use_cache)
 
-    return likelihood
+    def log_likelihood(DetectorRelation self, FactorialCache cache, numeric_in[:] signal_1, numeric_in[:] signal_2, double rel_precision, bint use_cache = True) -> float:
+        cdef Py_ssize_t n_bins = signal_1.shape[0]
+        cdef Py_ssize_t n_bins_2 = signal_2.shape[0]
+        if n_bins != n_bins_2:
+            raise IndexError(f"Signals have different numbers of bins {n_bins}, {n_bins_2}")
+
+        cdef double likelihood = 0
+        cdef Py_ssize_t i
+        for i in range(n_bins):
+            likelihood += self.bin_log_likelihood(cache, signal_1[i], signal_2[i], rel_precision, use_cache)
+
+        return likelihood
