@@ -80,5 +80,5 @@ size_t BinSumTerms::lead_index_1() const {
 }
 
 scalar BinSumTerms::log_likelihood_prefactor() const {
-    return detectors.log_sensitivity.first * count_1 + detectors.log_sensitivity.second * count_2;
+    return detectors.log_sensitivity.first * count_1 + detectors.log_sensitivity.second * count_2 + detectors.log_const_prefactor;
 }

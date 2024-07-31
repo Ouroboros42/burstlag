@@ -11,7 +11,8 @@ cdef extern from "inputs/relation.hpp":
         DetectorRelation(
             double bin_background_rate_1,
             double bin_background_rate_2,
-            double sensitivity_ratio_2_to_1
+            double sensitivity_ratio_2_to_1,
+            double source_suppression
         ) except +
 
         DetectorRelation flip() except +

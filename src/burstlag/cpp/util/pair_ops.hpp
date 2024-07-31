@@ -12,6 +12,10 @@ inline scalar_pair flip_pair(scalar_pair p) {
     return { p.second, p.first };
 }
 
+inline scalar sum(scalar_pair p) {
+    return p.first + p.second;
+}
+
 #define PAIR_OP(OP) \
 inline scalar_pair operator OP(scalar_pair a, scalar_pair b) { \
 	return { a.first OP b.first, a.second OP b.second }; \

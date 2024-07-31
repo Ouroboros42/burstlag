@@ -30,8 +30,8 @@ cdef class DetectorRelation:
     c_rel: CPPDetectorRelation
     c_rel_flipped: CPPDetectorRelation
 
-    def __init__(self: DetectorRelation, bin_background_rate_1: float = 0., bin_background_rate_2: float = 0., sensitivity_ratio_2_to_1: float = 1.) -> None:
-        self.c_rel = CPPDetectorRelation(bin_background_rate_1, bin_background_rate_2, sensitivity_ratio_2_to_1)
+    def __init__(self: DetectorRelation, bin_background_rate_1: float = 0., bin_background_rate_2: float = 0., sensitivity_ratio_2_to_1: float = 1., source_suppression: float = 1.) -> None:
+        self.c_rel = CPPDetectorRelation(bin_background_rate_1, bin_background_rate_2, sensitivity_ratio_2_to_1, source_suppression)
         self.c_rel_flipped = self.c_rel.flip()
 
     @staticmethod
@@ -45,19 +45,20 @@ cdef class DetectorRelation:
         return n_events - expected_background
 
     @classmethod
-    def from_counts(cls, background_rate_1: float, background_rate_2: float, n_events_1: int, n_events_2: int, sample_time: float, bin_width: float) -> DetectorRelation:
+    def from_counts(cls, background_rate_1: float, background_rate_2: float, n_events_1: int, n_events_2: int, sample_time: float, bin_width: float, source_suppression: float = 1.) -> DetectorRelation:
         return cls(background_rate_1 * bin_width, background_rate_2 * bin_width,
-            cls.expected_real_events(background_rate_2, n_events_2, sample_time) / cls.expected_real_events(background_rate_1, n_events_1, sample_time)
+            cls.expected_real_events(background_rate_2, n_events_2, sample_time) / cls.expected_real_events(background_rate_1, n_events_1, sample_time),
+            source_suppression
         )
 
     @classmethod
-    def from_hist_arrays(cls, background_rate_1: float, background_rate_2: float, hist_1: np.ndarray, hist_2: np.ndarray, bin_width: float = 1.) -> DetectorRelation:
+    def from_hist_arrays(cls, background_rate_1: float, background_rate_2: float, hist_1: np.ndarray, hist_2: np.ndarray, bin_width: float = 1., source_suppression: float = 1.) -> DetectorRelation:
         n_bins = len(hist_1)
         n_bins_2 = len(hist_2)
         if n_bins != n_bins_2:
             raise IndexError(f"Histograms have different numbers of bins {n_bins}, {n_bins_2}")
 
-        return cls.from_counts(background_rate_1, background_rate_2, int(np.sum(hist_1)), int(np.sum(hist_2)), bin_width * n_bins, bin_width)
+        return cls.from_counts(background_rate_1, background_rate_2, int(np.sum(hist_1)), int(np.sum(hist_2)), bin_width * n_bins, bin_width, source_suppression)
     
     cpdef double bin_log_likelihood(DetectorRelation self, FactorialCache cache, numeric_in count_1, numeric_in count_2, double rel_precision, bint use_cache = True):
         cdef size_t u_count_1 = convert_to_count(count_1)

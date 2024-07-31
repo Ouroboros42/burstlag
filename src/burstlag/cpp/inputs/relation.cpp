@@ -5,14 +5,15 @@
 #include <cmath>
 #include <optional>
 
-DetectorRelation::DetectorRelation(scalar_pair log_sensitivity, scalar_pair rate_const, scalar_pair log_rate_const) :
-    log_sensitivity(log_sensitivity), rate_const(rate_const), log_rate_const(log_rate_const)
+DetectorRelation::DetectorRelation(scalar_pair log_sensitivity, scalar_pair rate_const, scalar_pair log_rate_const, scalar log_const_prefactor) :
+    log_sensitivity(log_sensitivity), rate_const(rate_const), log_rate_const(log_rate_const), log_const_prefactor(log_const_prefactor)
 {}
 
-DetectorRelation::DetectorRelation(scalar_pair bin_background_rate, scalar_pair sensitivity) :
+DetectorRelation::DetectorRelation(scalar_pair bin_background_rate, scalar_pair sensitivity, scalar log_suppression_prefactor) :
     log_sensitivity(log(sensitivity)),
     rate_const(bin_background_rate / sensitivity),
-    log_rate_const(log(rate_const))
+    log_rate_const(log(rate_const)),
+    log_const_prefactor(log_suppression_prefactor - sum(bin_background_rate))
 {}
 
 inline scalar_pair sensitivities_from_ratio(scalar sensitivity_ratio_2_to_1) {
@@ -20,16 +21,17 @@ inline scalar_pair sensitivities_from_ratio(scalar sensitivity_ratio_2_to_1) {
     return { sensitivity_1, 1 - sensitivity_1 };
 }
 
-DetectorRelation::DetectorRelation(scalar bin_background_rate_1, scalar bin_background_rate_2, scalar sensitivity_ratio_2_to_1)
+DetectorRelation::DetectorRelation(scalar bin_background_rate_1, scalar bin_background_rate_2, scalar sensitivity_ratio_2_to_1, scalar source_suppression)
 : DetectorRelation(
     { bin_background_rate_1, bin_background_rate_2 }, 
-    sensitivities_from_ratio(sensitivity_ratio_2_to_1)
+    sensitivities_from_ratio(sensitivity_ratio_2_to_1) / source_suppression,
+    (source_suppression == 1) ? 0 : std::log(1 - 1 / source_suppression) // Allow 0-suppression case
 ) {}
 
-DetectorRelation::DetectorRelation() : DetectorRelation(0, 0, 1) {}
+DetectorRelation::DetectorRelation() : DetectorRelation(0, 0, 1, 1) {}
 
 DetectorRelation DetectorRelation::flip() {
-    return DetectorRelation(flip_pair(log_sensitivity), flip_pair(rate_const), flip_pair(log_rate_const));
+    return DetectorRelation(flip_pair(log_sensitivity), flip_pair(rate_const), flip_pair(log_rate_const), log_const_prefactor);
 }
 
 scalar DetectorRelation::bin_log_likelihood(FactorialCache& fcache, size_t count_1, size_t count_2, scalar rel_precision, bool use_cache) {
