@@ -19,6 +19,11 @@ class KnownValuesTest(unittest.TestCase):
 
         rel = DetectorRelation.from_hist_arrays(0.1, 0.1, a1, a1)
 
+        b1, b2 = rel.bin_background_rates
+        self.assertAlmostEqual(0.1, b1)
+        self.assertAlmostEqual(0.1, b2)
+        self.assertAlmostEqual(1, rel.sensitivity_ratio_2_to_1)
+
         self.assertAlmostEqual(-0.980886094868,
             rel.bin_log_likelihood(cache, 1, 2, precision),
         delta=eps)

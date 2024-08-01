@@ -30,9 +30,25 @@ cdef class DetectorRelation:
     c_rel: CPPDetectorRelation
     c_rel_flipped: CPPDetectorRelation
 
+    bin_background_rate_1: float
+    bin_background_rate_2: float
+    _sensitivity_ratio_2_to_1: float
+
     def __init__(self: DetectorRelation, bin_background_rate_1: float = 0., bin_background_rate_2: float = 0., sensitivity_ratio_2_to_1: float = 1., source_suppression: float = 1.) -> None:
+        self.bin_background_rate_1 = bin_background_rate_1
+        self.bin_background_rate_2 = bin_background_rate_2
+        self._sensitivity_ratio_2_to_1 = sensitivity_ratio_2_to_1
+
         self.c_rel = CPPDetectorRelation(bin_background_rate_1, bin_background_rate_2, sensitivity_ratio_2_to_1, source_suppression)
         self.c_rel_flipped = self.c_rel.flip()
+
+    @property
+    def bin_background_rates(self):
+        return (self.bin_background_rate_1, self.bin_background_rate_2)
+    
+    @property
+    def sensitivity_ratio_2_to_1(self):
+        return self._sensitivity_ratio_2_to_1
 
     @staticmethod
     def expected_real_events(background_rate: float, n_events: int, sample_time: float) -> float:
