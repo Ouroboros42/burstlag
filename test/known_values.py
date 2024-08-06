@@ -6,7 +6,13 @@ from math import log, factorial
 from burstlag import FactorialCache, DetectorRelation
 
 class KnownValuesTest(unittest.TestCase):
-    def test(self):
+    def testbig(self):
+        cache = FactorialCache()
+
+        rel = DetectorRelation(3000.0, 0.002, 0.010950365266681326)
+        rel.bin_log_likelihood(cache, 2990, 0, 1e-2)
+
+    def testsmall(self):
         precision = 1e-3
         fastExp_err = 3e-2
         eps = precision + fastExp_err

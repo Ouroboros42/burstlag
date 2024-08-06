@@ -53,12 +53,32 @@ size_t BinSumTerms::lead_index_2(size_t index_1) const {
 /* Return ceil of first element from pair in range [0, max_index].*/
 std::optional<size_t> valid_index(quad_roots index_ests, size_t max_index) {
     if (!index_ests) return std::nullopt;
-
     auto [first, second] = *index_ests;
+
     if (0 <= first && first <= max_index) return std::ceil(first);
     if (0 <= second && second <= max_index) return std::ceil(second);
 
     return std::nullopt;
+}
+
+scalar BinSumTerms::row_lead(size_t row_i) const {
+    return get(row_i, lead_index_2(row_i));
+}
+
+size_t BinSumTerms::peak_index(size_t first, size_t second) const {
+    scalar first_term = row_lead(first), second_term = row_lead(second);
+
+    return (first_term > second_term) ? first : second;
+}
+
+size_t BinSumTerms::peak_index(size_t first, size_t second, size_t third) const {
+    scalar first_term = row_lead(first), second_term = row_lead(second), third_term = row_lead(third);
+
+    if (first_term > second_term) {
+        return (first_term > third_term) ? first : third;
+    } else {
+        return (second_term > third_term) ? second : third;
+    }
 }
 
 size_t BinSumTerms::lead_index_1() const {
@@ -70,13 +90,11 @@ size_t BinSumTerms::lead_index_1() const {
         (detectors.rate_const.first - 1) * (count_1 + detectors.rate_const.second) - count_2 - 1
     );
 
-    if (auto index = valid_index(roots, count_1)) return *index;
+    if (auto index = valid_index(roots, count_1)) {
+        return peak_index(*index, 0, count_1);
+    }
 
-    // Analytic location has failed, peak must be at boundary
-    scalar first_lead = get(0, lead_index_2(0));
-    scalar last_lead = get(count_1, lead_index_2(count_1));
-
-    return (first_lead > last_lead) ? 0 : count_1;
+    return peak_index(0, count_1);
 }
 
 scalar BinSumTerms::log_likelihood_prefactor() const {

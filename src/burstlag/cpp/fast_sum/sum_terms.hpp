@@ -13,6 +13,12 @@ class BinSumTerms {
     FactorialCache const& fcache;
     DetectorRelation const& detectors;
 
+    scalar row_lead(size_t row_i) const;
+
+    size_t peak_index(size_t first, size_t second) const;
+
+    size_t peak_index(size_t first, size_t second, size_t third) const;
+
 public:
     BinSumTerms(FactorialCache& fcache, DetectorRelation& detectors, size_t count_1, size_t count_2);
 

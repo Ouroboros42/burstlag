@@ -5,8 +5,8 @@
 #include <cstddef>
 
 //Debug
-// #include <iostream>
-// #include <cstdio>
+#include <iostream>
+#include <cstdio>
 
 using std::size_t;
 

@@ -33,14 +33,19 @@ cdef class DetectorRelation:
     bin_background_rate_1: float
     bin_background_rate_2: float
     _sensitivity_ratio_2_to_1: float
+    _source_suppression: float
 
     def __init__(self: DetectorRelation, bin_background_rate_1: float = 0., bin_background_rate_2: float = 0., sensitivity_ratio_2_to_1: float = 1., source_suppression: float = 1.) -> None:
         self.bin_background_rate_1 = bin_background_rate_1
         self.bin_background_rate_2 = bin_background_rate_2
         self._sensitivity_ratio_2_to_1 = sensitivity_ratio_2_to_1
+        self._source_suppression = source_suppression
 
         self.c_rel = CPPDetectorRelation(bin_background_rate_1, bin_background_rate_2, sensitivity_ratio_2_to_1, source_suppression)
         self.c_rel_flipped = self.c_rel.flip()
+
+    def __repr__(self: DetectorRelation):
+        return f"DetectorRelation({self.bin_background_rate_1}, {self.bin_background_rate_2}, {self._sensitivity_ratio_2_to_1}, {self._source_suppression})"
 
     @property
     def bin_background_rates(self):
@@ -49,6 +54,10 @@ cdef class DetectorRelation:
     @property
     def sensitivity_ratio_2_to_1(self):
         return self._sensitivity_ratio_2_to_1
+
+    @property
+    def source_suppression(self):
+        return self._source_suppression
 
     @staticmethod
     def expected_real_events(background_rate: float, n_events: int, sample_time: float) -> float:
@@ -90,10 +99,13 @@ cdef class DetectorRelation:
         cdef Py_ssize_t n_bins_2 = signal_2.shape[0]
         if n_bins != n_bins_2:
             raise IndexError(f"Signals have different numbers of bins {n_bins}, {n_bins_2}")
-
+        
         cdef double likelihood = 0
         cdef Py_ssize_t i
-        for i in range(n_bins):
-            likelihood += self.bin_log_likelihood(cache, signal_1[i], signal_2[i], rel_precision, use_cache)
+        try:
+            for i in range(n_bins):
+                likelihood += self.bin_log_likelihood(cache, signal_1[i], signal_2[i], rel_precision, use_cache)
+        except RuntimeError:
+            logging.warning(f"Divergent sum term for counts: ({signal_1[i]}, {signal_2[i]}) at precision {rel_precision},\ndetector = {self}")
 
         return likelihood
