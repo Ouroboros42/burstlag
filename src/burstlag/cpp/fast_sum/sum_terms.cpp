@@ -61,37 +61,17 @@ std::optional<size_t> valid_index(quad_roots index_ests, size_t max_index) {
     return std::nullopt;
 }
 
-scalar BinSumTerms::row_lead(size_t row_i) const {
-    return get(row_i, lead_index_2(row_i));
-}
-
-size_t BinSumTerms::peak_index(size_t first, size_t second) const {
-    scalar first_term = row_lead(first), second_term = row_lead(second);
-
-    return (first_term > second_term) ? first : second;
-}
-
-size_t BinSumTerms::peak_index(size_t first, size_t second, size_t third) const {
-    scalar first_term = row_lead(first), second_term = row_lead(second), third_term = row_lead(third);
-
-    if (first_term > second_term) {
-        return (first_term > third_term) ? first : third;
-    } else {
-        return (second_term > third_term) ? second : third;
-    }
-}
-
 size_t BinSumTerms::lead_index_1() const {
     if (detectors.rate_const.first < 1) return 0;
 
     quad_roots roots = solve_quadratic(
         detectors.rate_const.first - detectors.rate_const.second,
         (detectors.rate_const.second - detectors.rate_const.first - count_1 - count_2) * detectors.rate_const.first - 2 * detectors.rate_const.second,
-        (detectors.rate_const.first - 1) * (count_1 + detectors.rate_const.second) - count_2 - 1
+        (detectors.rate_const.first - 1) * (detectors.rate_const.second + detectors.rate_const.first * count_1) - detectors.rate_const.first * (count_2 + 1)
     );
 
     if (auto index = valid_index(roots, count_1)) {
-        return peak_index(*index, 0, count_1);
+        return *index;
     }
 
     return peak_index(0, count_1);

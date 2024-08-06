@@ -10,6 +10,7 @@ class KnownValuesTest(unittest.TestCase):
         cache = FactorialCache()
 
         rel = DetectorRelation(3000.0, 0.002, 0.010950365266681326)
+        rel.bin_log_likelihood(cache, 5812, 22, 1e-2)
         rel.bin_log_likelihood(cache, 2990, 0, 1e-2)
 
     def testsmall(self):

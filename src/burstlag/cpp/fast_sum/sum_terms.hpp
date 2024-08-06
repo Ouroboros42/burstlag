@@ -4,6 +4,8 @@
 #include "caching/factorials.hpp"
 #include "inputs/relation.hpp"
 
+#include <utility>
+
 /* Terms in sum of to find likelihood of two observed neutrino counts (count_1, count_2) in the same time window,
 for the specified detectors. */
 class BinSumTerms {
@@ -13,11 +15,29 @@ class BinSumTerms {
     FactorialCache const& fcache;
     DetectorRelation const& detectors;
 
-    scalar row_lead(size_t row_i) const;
+    scalar row_lead(size_t row_i) const {
+        return get(row_i, lead_index_2(row_i));
+    }
 
-    size_t peak_index(size_t first, size_t second) const;
+    typedef std::pair<size_t, scalar> i_val;
 
-    size_t peak_index(size_t first, size_t second, size_t third) const;
+    i_val indexed_row_lead(size_t row_i) const {
+        return { row_i, row_lead(row_i) };
+    }
+
+    template <std::convertible_to<i_val>... Rest>
+    size_t peak_index(i_val first, i_val second, Rest... others) const {
+        return (first.second > second.second) ? peak_index(first, others...) : peak_index(second, others...);
+    }
+
+    size_t peak_index(i_val only) const {
+        return only.first;
+    }
+
+    template <std::convertible_to<size_t>... I>
+    size_t peak_index(I... indices) const {
+        return peak_index(indexed_row_lead(indices)...);
+    }
 
 public:
     BinSumTerms(FactorialCache& fcache, DetectorRelation& detectors, size_t count_1, size_t count_2);
