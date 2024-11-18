@@ -8,8 +8,8 @@
 #include <cmath>
 #include <utility>
 #include <iostream>
+#include <tuple>
 
-// Chokepoint of entire operation
 scalar exp_scaled(scalar log_x, scalar log_rescale) {
     scalar log_scaled = log_x - log_rescale;
 
@@ -61,24 +61,29 @@ scalar tail_sum_exp(A const& log_terms, size_t lead_i, scalar total, scalar log_
 }
 
 template <PeakedLazyArray<scalar> A>
-scalar peaked_sum_exp(A const& log_terms, scalar total, scalar log_rescale, scalar term_rel_precision) {
+std::pair<bool, scalar> peaked_sum_exp(A const& log_terms, scalar total, scalar log_rescale, scalar term_rel_precision) {
     size_t lead_i = log_terms.lead_index();
 
     scalar lead_term = exp_scaled(log_terms.get(lead_i), log_rescale);
     bool has_converged = lead_term < total * term_rel_precision;
     total += lead_term;
 
-    if (has_converged) return total;
+    if (!has_converged) total = tail_sum_exp(log_terms, lead_i, total, log_rescale, term_rel_precision);
 
-    return tail_sum_exp(log_terms, lead_i, total, log_rescale, term_rel_precision);
+    return { has_converged, total };
 }
 
 template <PeakedLazyArray2D<scalar> A2, LazyArray<LazyArrayRow<scalar, A2>> RA>
 scalar sum_exp_rows(RA const& rows, scalar total, scalar log_rescale, scalar term_rel_precision) {
     size_t n_rows = rows.size();
     for (size_t i = 0; i < n_rows; i++) {
-        total = peaked_sum_exp(rows.get(i), total, log_rescale, term_rel_precision);
+        bool has_converged;
+
+        std::tie(has_converged, total) = peaked_sum_exp(rows.get(i), total, log_rescale, term_rel_precision);
+
+        if (has_converged) break;
     }
+
     return total;
 }
 
