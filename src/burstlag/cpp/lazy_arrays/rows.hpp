@@ -20,6 +20,7 @@ public:
     size_t lead_index() const { return source.lead_index_2(row); }
 };
 
+/* A LazyArray of LazyArrayRows */
 template <typename V, LazyArray2D<V> A2>
 class RowsArray {
     A2 const& source;

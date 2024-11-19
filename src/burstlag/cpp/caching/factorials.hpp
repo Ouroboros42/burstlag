@@ -9,27 +9,31 @@ class FactorialCache {
     vec log_n_factorial;
     
 public:
+    /* New cache, up to 1! */
     FactorialCache();
+
+    /* New cache, precalculated up to log(max_n!) */
     FactorialCache(size_t max_n);
 
+    /* Calculate factorials up to log(new_max_n!) */
     void build_upto(size_t new_max_n);
 
-    // largest n for which log(n!) is stored
+    /* largest n for which log(n!) is stored */
     size_t max() const;
 
-    // log(n) for 0 < n <= size
+    /* log(n) for 0 < n <= size */
     inline scalar log(size_t n) const { return log_n[n-1]; }
     
-    // log(n!) for 0 <= n <= size
+    /* log(n!) for 0 <= n <= size */
     inline scalar log_factorial(size_t n) const { return log_n_factorial[n]; }
 
-    // log(x^n / n!)
+    /* log(x^n / n!) */
     scalar log_exp_series_term(scalar log_x, size_t index) const;
 
-    // Construct the series log(x^n / n!) for 0 <= n < n_terms
+    /* Construct the series log(x^n / n!) for 0 <= n < n_terms */ 
     vec exp_series(scalar x, size_t n_terms) const;
 
-    // log((r+s) C r)
+    /* log((r+s) C r) */ 
     scalar log_binomial(size_t r, size_t s) const;
 };
 

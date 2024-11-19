@@ -10,6 +10,15 @@
 #include <iostream>
 #include <tuple>
 
+/*
+These are a collection of functions for quickly approximating the total log-likelihood from many log-terms in a sum.
+They rely on the terms having a very specific structure (one peak in each row/col).
+*/
+
+/* Calculate x / rescale from logs of both.
+This must be done for every term included in the total, and exp is slow,
+so this is the chokepoint of th entire operation.
+ */
 scalar exp_scaled(scalar log_x, scalar log_rescale) {
     scalar log_scaled = log_x - log_rescale;
 
@@ -28,7 +37,7 @@ scalar exp_scaled(scalar log_x, scalar log_rescale) {
 
 /*
 Return the sum of exp(log_terms[i] - log_rescale)
-Assumes termsa are strictly decreasing with i
+Assumes terms are strictly decreasing with i
 Rejects terms of value (relative to total) below term_rel_precision
 */
 template <LazyArray<scalar> A>
@@ -46,6 +55,8 @@ scalar sum_exp(A const& log_terms, scalar total, scalar log_rescale, scalar term
     return total;
 }
 
+/* Partition a LazyArray into two sub arrays, around some central term (presumably the largest).
+The central term is at index split_i, and is not included in either 'tail' array.*/
 template <typename V, LazyArray<V> A>
 std::pair<LazySubArray<V, A>, LazySubArray<V, A>> split_tails(A const& array, size_t split_i) {
     return { LazySubArray<V, A>(array, split_i-1, false), LazySubArray<V, A>(array, split_i+1, true) };
@@ -60,6 +71,8 @@ scalar tail_sum_exp(A const& log_terms, size_t lead_i, scalar total, scalar log_
     return total;
 }
 
+/* Equivalent to sum_exp, but for a whole row of terms, for which the peak index may be calculated.
+Returns a bool indicating if the sum has converged, and the new total. */
 template <PeakedLazyArray<scalar> A>
 std::pair<bool, scalar> peaked_sum_exp(A const& log_terms, scalar total, scalar log_rescale, scalar term_rel_precision) {
     size_t lead_i = log_terms.lead_index();
@@ -73,6 +86,7 @@ std::pair<bool, scalar> peaked_sum_exp(A const& log_terms, scalar total, scalar 
     return { has_converged, total };
 }
 
+/* Sum a series of rows (same procedure as sum_exp) with known peaks. */
 template <PeakedLazyArray2D<scalar> A2, LazyArray<LazyArrayRow<scalar, A2>> RA>
 scalar sum_exp_rows(RA const& rows, scalar total, scalar log_rescale, scalar term_rel_precision) {
     size_t n_rows = rows.size();
@@ -87,6 +101,8 @@ scalar sum_exp_rows(RA const& rows, scalar total, scalar log_rescale, scalar ter
     return total;
 }
 
+/* Calculate the total log-likelihood for a full array of terms, including the overall scale factor.
+rel_precision is roughly the maximum absolute error on the total log-likelihood (corresponding to relative error in the likelihood). */
 template <PeakedLazyArray2D<scalar> A2>
 scalar log_sum_exp(A2 log_terms, scalar rel_precision) {
     typedef LazyArrayRow<scalar, A2> RowT;

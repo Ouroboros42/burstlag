@@ -9,7 +9,7 @@ quad_roots solve_quadratic(scalar b, scalar c) {
 /* First root always lower */
 quad_roots solve_quadratic(scalar a, scalar b, scalar c) {
     if (a == 0) {
-        if (b == 0) return std::nullopt; // Solution undetermined
+        if (b == 0) return std::nullopt; // Solution undetermined (equation has no x dependence)
         // Solve linear case
         scalar soln = - c / b;
         return std::pair(soln, soln);
