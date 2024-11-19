@@ -1,3 +1,5 @@
+# This is the cython equivalent of a header file, which exposes the c++ classes to the cython code
+
 from libcpp.vector cimport vector
 
 cdef extern from "caching/factorials.hpp":
